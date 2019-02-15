@@ -13,7 +13,7 @@ class Board:
     # generate one queen per row, represented as a 1 for Queen
     def __init__(self, num_queens):
         self.board = []
-        for i in range(num_queens):
+        for _ in range(num_queens):
             row = np.zeros(num_queens)
             rand = random.randint(0, num_queens-1)  # rand is inclusive
             row[rand] = 1
