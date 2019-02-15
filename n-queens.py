@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 import random
-
+from board import Board
 
 class NQueens:
 
@@ -19,7 +19,7 @@ class NQueens:
         for i in range(len(encoding)):
             row = np.zeros(self.queens)
             row[int(encoding[i])] = 1
-            q_map.insert(i, row)
+            q_map.append(row)
         print(q_map)
 
     # returns an index of which state was selected
@@ -47,3 +47,4 @@ if __name__ == "__main__":
     test_state_perc = [.3, .4, .3]
     print(prob.selection(test_state_perc))
     print(sys.argv)
+    board = Board(4)
