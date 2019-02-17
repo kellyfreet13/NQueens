@@ -9,19 +9,21 @@ class NQueens:
         self.queens = n
         self.states = k
         self.states_list = []
+        for i in range(self.states):
+            self.states_list.append(self.generate_state())
 
     def __str__(self):
         return "Hello %(name)s!" % self
 
-    # generate map (2D list) from string
+    # generate map (2D list) from a list of int
     def generate_map(self, encoding):
         q_map = []
         for i in range(len(encoding)):
-            row = np.zeros(self.queens)
-            row[int(encoding[i])] = 1
+            row = [0] * self.queens
+            row[encoding[i]] = 1
             q_map.append(row)
-        print(q_map)
-
+        for row in q_map:
+            print(*row)
     # returns an index of which state was selected
     # ex: given states A: .5, B: .3, C: .2
     # args: list of probabilities (sum to 1)
@@ -36,13 +38,49 @@ class NQueens:
             if probs[i] < rand < probs[i+1]:
                 return i
 
+    # Generate a state of length k (or self.states)
+    # Values are in range 0, k - 1
+    def generate_state(self):
+        state = []
+        for i in range(self.queens):
+            state.append(random.randint(0, self.queens - 1))
+        return state
+
+    # Modifies the position of one queen on a specific state
+    def mutation(self, state):
+        index = random.randint(0, self.queens - 1)
+        value = random.randint(0, self.queens - 1)
+        state[index] = value
+
+    # Execute a crossover between 2 state at index crossover_index
+    def crossover_two_states(self, first_state, second_state, crossover_index):
+        new_states = [first_state[0: crossover_index + 1] + second_state[crossover_index + 1: len(second_state)],
+                      second_state[0: crossover_index + 1] + first_state[crossover_index + 1: len(first_state)]]
+        return new_states
+
+    # Execute crossovers between all the states and return a new list containing the new states
+    def crossover_states(self, crossover_index=int):
+        new_list = []
+        random.shuffle(self.states_list)
+        for i in range((int)(len(self.states_list) / 2)):
+            first_state = self.states_list[0]
+            self.states_list.pop(0)
+            second_state = self.states_list[0]
+            self.states_list.pop(0)
+            new_list.extend(self.crossover_two_states(first_state, second_state, crossover_index))
+        if len(self.states_list) > 0:
+            new_list.append(self.states_list[0])
+        return new_list
+
 
 # in a cmd prompt, type (without < >) <python n-queens.py some args>
 if __name__ == "__main__":
 
     #NQueens(sys.argv[1], sys.argv[2])
     prob = NQueens(4, 3)
-    prob.generate_map('0123')
+    for i in range(prob.states):
+        prob.generate_map(prob.states_list[i])
+        print("\n")
 
     test_state_perc = [.3, .4, .3]
     print(prob.selection(test_state_perc))
