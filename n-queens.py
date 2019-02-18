@@ -86,3 +86,28 @@ if __name__ == "__main__":
     print(prob.selection(test_state_perc))
     print(sys.argv)
     board = Board(4)
+    board.print_board()
+
+    # # test rows
+    # board.set_board([
+    #     [1, 1, 1, 1],  # 6 pairs
+    #     [0, 1, 1, 1],  # 3 pairs
+    #     [0, 0, 1, 1],  # 1 pairs
+    #     [0, 0, 0, 0]   # 0 pairs
+    # ])
+    #
+    # num_attacking_pairs_rows = board.check_rows()
+    # print('num attacking pairs rows: ', num_attacking_pairs_rows)
+
+    # test cols, just invert for cols, should still be 10
+    # b = np.array([
+    #     [1, 1, 1, 1],
+    #     [0, 1, 1, 1],
+    #     [0, 0, 1, 1],
+    #     [0, 0, 0, 0]
+    #  ])
+    #
+    # inv_board = np.matrix.transpose(b)
+    # board.set_board(inv_board)
+    # n_pairs_col = board.check_columns()
+    # print('num attacking pairs cols', n_pairs_col)
