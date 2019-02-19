@@ -26,7 +26,7 @@ class Board:
         self.board = np.array(self.board)
 
     def set_board(self, board):
-        self.board = board
+        self.board = np.array(board)
         self.num_queens = len(board)
 
     def print_board(self):
@@ -62,10 +62,45 @@ class Board:
                 num_attacking_pairs += self.ncr(col_sum, pair)
         return num_attacking_pairs
 
+    def check_diags(self):
+        num_attacking_pairs = 0
+        pair = 2
+        num_rotations = 1
+
+        # make a so we can rotate the board in loop
+        board_copy = self.board
+
+        for _ in range(num_rotations+1):
+            # check the 0 diagonal
+            diag_sum = sum(board_copy.diagonal(0))
+            if diag_sum > 1:
+                num_attacking_pairs += self.ncr(diag_sum, pair)
+
+            # first, check the board as is. checks 'downward' diagonals
+            # also, we don't want to check 0 twice (0 and -0), so start at 1
+            for diag in range(1, self.num_queens-1, 1):
+                # checks upper diagonal
+                diag_sum = sum(board_copy.diagonal(diag))
+                if diag_sum > 1:
+                    num_attacking_pairs += self.ncr(diag_sum, pair)
+
+                # checks lower diagonal
+                diag_sum = sum(board_copy.diagonal(-diag))
+                if diag_sum > 1:
+                    num_attacking_pairs += self.ncr(diag_sum, pair)
+
+            board_copy = np.array(list(zip(*board_copy[::-1])))
+
+        return num_attacking_pairs
+
     def ncr(self, n, r):
         r = min(r, n - r)
         numer = reduce(op.mul, range(n, n - r, -1), 1)
         denom = reduce(op.mul, range(1, r + 1), 1)
         return numer / denom
 
-
+    def get_diag_index(self, row, col):
+        if row + 1 > self.num_queens - 1 or col + 1 > self.num_queens - 1:
+            return False
+        else:
+            return row + 1, col + 1
