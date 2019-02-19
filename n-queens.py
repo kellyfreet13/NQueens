@@ -1,7 +1,9 @@
 import sys
 import numpy as np
 import random
+import time
 from board import Board
+import matplotlib.pyplot as plt
 
 
 class NQueens:
@@ -10,14 +12,12 @@ class NQueens:
         self.queens = n
         self.states = k
         self.board = Board(n)
+        self.total_pairs = self.board.ncr(n, 2)
         self.is_solved = False
         self.solution = None
         self.states_list = []
         for i in range(self.states):
             self.states_list.append(self.generate_state())
-
-    def __str__(self):
-        return "Hello %(name)s!" % self
 
     # generate map (2D list) from a list of int
     def generate_board(self, encoding):
@@ -43,8 +43,10 @@ class NQueens:
     # Values are in range 0, k - 1
     def generate_state(self):
         state = []
+        positions = np.arange(self.queens)
+        np.random.shuffle(positions)
         for i in range(self.queens):
-            state.append(random.randint(0, self.queens - 1))
+            state.append(positions[i])
         return state
 
     # Modifies the position of one queen on a specific state
@@ -55,32 +57,9 @@ class NQueens:
 
         return state
 
-    # Execute a crossover between 2 state at index crossover_index
-    def crossover_two_states(self, first, second, i):
-        new_states = [first[0: i + 1] + second[i + 1: len(second)],
-                      second[0: i + 1] + first[i + 1: len(first)]]
-        return new_states
-
-    # Execute crossovers between all the states and return a new list containing the new states
-    # Kelly change: added states_list param
-    def crossover_states(self, states_list, crossover_index=int):
-        new_list = []
-        # random.shuffle(self.states_list)
-        for i in range(int(len(states_list) / 2)):
-            first_state = states_list[0]
-            states_list.pop(0)
-            second_state = states_list[0]
-            states_list.pop(0)
-            new_list.extend(self.crossover_two_states(first_state, second_state, crossover_index))
-        if len(states_list) > 0:
-            new_list.append(states_list[0])
-        return new_list
-
     # args: board
     # return: number of non-attacking pairs of queens
     def fitness(self, board):
-        total_pairs = board.ncr(self.queens, 2)
-
         row_attacking_pairs = board.check_rows()
         col_attacking_pairs = board.check_columns()
         diag_attacking_pairs = board.check_diags()
@@ -91,7 +70,7 @@ class NQueens:
             print('we have a solution!')
             self.is_solved = True
             self.solution = board
-        return total_pairs - total_attacking_pairs
+        return self.total_pairs - total_attacking_pairs
 
     def fitness_percentages(self):
         fitnesses = []
@@ -105,7 +84,7 @@ class NQueens:
 
         return fitness_percs
 
-    def my_cross_2(self, first, second, index):
+    def crossover(self, first, second, index):
         f_swap = first[index:]
         s_swap = second[index:]
 
@@ -117,16 +96,15 @@ class NQueens:
 
         return f_cross, s_cross
 
-    def my_crossover(self, rand_states, index):
+    def crossovers(self, rand_states, index):
         crossed_list = []
         for i in range(0, len(rand_states), 2):
-            f, s = self.my_cross_2(rand_states[i], rand_states[i+1], index)
+            f, s = self.crossover(rand_states[i], rand_states[i+1], index)
             crossed_list.append(f)
             crossed_list.append(s)
         return crossed_list
 
-
-    def evolution_states(self):
+    def evolution_states(self, swap_index):
         fitness_percs = self.fitness_percentages()
 
         # ======== SELECTION ========
@@ -134,21 +112,73 @@ class NQueens:
         rand_states = [self.states_list[self.selection(fitness_percs)] for _ in range(self.states)]
 
         # ======== CROSSOVER ========
-        swap_index = int(self.queens / 2) - 1
-        genetic_altered_states = self.my_crossover(rand_states, swap_index)
+        genetic_altered_states = self.crossovers(rand_states, swap_index)
 
         # ======== MUTATION =========
         mutated_states = [self.mutation(genetic_altered_states[i]) for i in range(self.states)]
 
         return mutated_states
 
-    def evolve(self):
-        i = 0
+    def evolve(self, swap_index):
+        num_iterations = 0
         while not self.is_solved:
-            self.states_list = self.evolution_states()
-            i += 1
-        print('# iterations: ', i)
+            self.states_list = self.evolution_states(swap_index)
+            num_iterations += 1
+        print('# iterations: ', num_iterations)
         self.solution.print_board()
+        return num_iterations
+
+
+def many_evolutions():
+
+    best = sys.maxsize
+    num_runs = 100
+    num_queens = 5
+    swap_index = 4
+    avg = 0
+    states = [2, 4, 6, 8]
+    avgs = []
+    num_bins = 10
+    medians = []
+    averages = []
+    minimums = []
+    maximums = []
+
+    start = time.time()
+
+    for i in range(len(states)):
+        k_avgs = []
+        for _ in range(num_runs):
+            q = NQueens(num_queens, states[i])
+            iters = q.evolve(swap_index)
+            k_avgs.append(iters)
+            avg += iters
+
+        medians.append(np.median(k_avgs))
+        averages.append(np.average(k_avgs))
+        minimums.append(min(k_avgs))
+        maximums.append(max(k_avgs))
+
+        plt.hist(k_avgs, num_bins, facecolor='blue', alpha=0.5)
+        title = '100 Iterations with k='+str(states[i])+' states'
+        plt.title(title)
+        plt.xlabel('# of iterations')
+        plt.ylabel('# of runs')
+        plt.show()
+        avg /= num_runs
+        avgs.append(avg)
+        print('avg. for index ', swap_index, ': ', avg)
+        if avg < best:
+            best = avg
+    end = time.time()
+    print('time elapsed: ', end-start)
+    print('avgs for each state: ', avgs)
+    print('average was: ', best, ' with index ', swap_index)
+
+    print('medians: ', medians)
+    print('averages: ', averages)
+    print('minimums: ', minimums)
+    print('maximums: ', maximums)
 
 
 # in a cmd prompt, type (without < >) <python n-queens.py some args>
@@ -206,7 +236,10 @@ if __name__ == "__main__":
     #     [1, 0, 0]
     # ])
     # q.board.print_board()
-    q.evolve()
+    # q.many_evolutions()
+    # q.evolve(7)
+
+    many_evolutions()
 
     # print(q.my_cross_2([1,1,1,1], [3,3,3,3], 2))
 
