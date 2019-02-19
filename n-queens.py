@@ -42,12 +42,9 @@ class NQueens:
     # Generate a state of length k (or self.states)
     # Values are in range 0, k - 1
     def generate_state(self):
-        state = []
-        positions = np.arange(self.queens)
-        np.random.shuffle(positions)
-        for i in range(self.queens):
-            state.append(positions[i])
-        return state
+        state = np.arange(self.queens)
+        np.random.shuffle(state)
+        return [state[i] for i in range(self.queens)]
 
     # Modifies the position of one queen on a specific state
     def mutation(self, state):
@@ -130,7 +127,6 @@ class NQueens:
 
 
 def many_evolutions():
-
     best = sys.maxsize
     num_runs = 100
     num_queens = 5
@@ -184,64 +180,12 @@ def many_evolutions():
 # in a cmd prompt, type (without < >) <python n-queens.py some args>
 if __name__ == "__main__":
 
-    #NQueens(sys.argv[1], sys.argv[2])
-    # prob = NQueens(4, 3)
-    # for i in range(prob.states):
-    #     prob.generate_board(prob.states_list[i])
-    #     print("\n")
-    #
-    # test_state_perc = [.3, .4, .3]
-    # print(prob.selection(test_state_perc))
-    # print(sys.argv)
-    # board = Board(4)
-    # board.print_board()
+    # ONLY USE IF RUN FROM CMD LINE - just for a single run
+    q = NQueens(int(sys.argv[1]), int(sys.argv[2]))
+    q.evolve(int(int(sys.argv[1])/2))
 
-    # # test rows
-    # board.set_board([
-    #     [1, 1, 1, 1],  # 6 pairs
-    #     [0, 1, 1, 1],  # 3 pairs
-    #     [0, 0, 1, 1],  # 1 pairs
-    #     [0, 0, 0, 0]   # 0 pairs
-    # ])
-    #
-    # num_attacking_pairs_rows = board.check_rows()
-    # print('num attacking pairs rows: ', num_attacking_pairs_rows)
-
-    # test cols, just invert for cols, should still be 10
-    # b = np.array([
-    #     [1, 1, 1, 1],
-    #     [0, 1, 1, 1],
-    #     [0, 0, 1, 1],
-    #     [0, 0, 0, 0]
-    #  ])
-    #
-    # inv_board = np.matrix.transpose(b)
-    # board.set_board(inv_board)
-    # n_pairs_col = board.check_columns()
-    # print('num attacking pairs cols', n_pairs_col)
-
-    # # NEEDS MORE TESTING, TRICKY STUFF
-    # board.set_board([
-    #     [1, 0, 1],
-    #     [0, 1, 0],
-    #     [1, 0, 1]
-    # ])
-    # n_pairs_diag = board.check_diags()
-    # print('num attacking pairs diag', n_pairs_diag)
-
-    q = NQueens(8, 4)
-    # q.set_board([
-    #     [1, 0, 0],
-    #     [0, 0, 0],
-    #     [1, 0, 0]
-    # ])
-    # q.board.print_board()
-    # q.many_evolutions()
-    # q.evolve(7)
-
+    # multiple runs - 100 for us
     many_evolutions()
-
-    # print(q.my_cross_2([1,1,1,1], [3,3,3,3], 2))
 
 
 
