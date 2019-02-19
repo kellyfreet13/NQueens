@@ -98,9 +98,3 @@ class Board:
         numer = reduce(op.mul, range(n, n - r, -1), 1)
         denom = reduce(op.mul, range(1, r + 1), 1)
         return numer / denom
-
-    def get_diag_index(self, row, col):
-        if row + 1 > self.num_queens - 1 or col + 1 > self.num_queens - 1:
-            return False
-        else:
-            return row + 1, col + 1
