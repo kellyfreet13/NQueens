@@ -111,3 +111,14 @@ if __name__ == "__main__":
     # board.set_board(inv_board)
     # n_pairs_col = board.check_columns()
     # print('num attacking pairs cols', n_pairs_col)
+
+    # # NEEDS MORE TESTING, TRICKY STUFF
+    # board.set_board([
+    #     [1, 0, 1],
+    #     [0, 1, 0],
+    #     [1, 0, 1]
+    # ])
+    # n_pairs_diag = board.check_diags()
+    # print('num attacking pairs diag', n_pairs_diag)
+
+
