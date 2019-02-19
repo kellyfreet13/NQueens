@@ -74,7 +74,7 @@ class Board:
             # check the 0 diagonal
             diag_sum = sum(board_copy.diagonal(0))
             if diag_sum > 1:
-                num_attacking_pairs += self.ncr(diag_sum, pair)
+                num_attacking_pairs += self.ncr(int(diag_sum), pair)
 
             # first, check the board as is. checks 'downward' diagonals
             # also, we don't want to check 0 twice (0 and -0), so start at 1
@@ -94,6 +94,8 @@ class Board:
         return num_attacking_pairs
 
     def ncr(self, n, r):
+        n = int(n)
+        r = int(r)
         r = min(r, n - r)
         numer = reduce(op.mul, range(n, n - r, -1), 1)
         denom = reduce(op.mul, range(1, r + 1), 1)
